@@ -1,0 +1,172 @@
+syntax = "proto2";
+  
+package chat;
+
+
+// ----- (REGISTRO DE USUARIOS) TCP 3-Way HandShake -----
+
+// MY INFO REQ. - SYNCHRONIZE
+// Sent from CLIENT
+message MyInfoSynchronize {
+  required string username = 1;
+  optional string ip = 2;
+}
+
+// MY INFO RESP. - SYN/ACK
+// Received from SERVER
+message MyInfoResponse {
+  required int32 userId = 1;
+}
+
+// MY INFO ACK. - ACKNOWLEDGE
+// Sent from CLIENT
+message MyInfoAcknowledge {
+  required int32 userId = 1;
+}
+// ------------------------------------------------------
+
+
+// --------- LISTADO DE USUARIOS CONECTADOS e OBETENCION DE INFORMACION DE USUARIO ---------
+
+// Sent from CLIENT
+// IF userId 0 RETURN ALL CONNECTED USERS
+message connectedUserRequest {
+  optional int32 userId = 1;
+  optional string username = 2;
+}
+
+// USUARIOS CONECTADOS
+message ConnectedUser {
+  required string username = 1;
+  optional string status = 2;
+  optional int32 userId = 3;
+  optional string ip = 4;
+}
+
+// Received from SERVER
+message ConnectedUserResponse {
+ repeated ConnectedUser connectedUsers = 1;
+}
+// ----------------------------------------------------------------------------------------
+
+
+// -------- CAMBIO DE STATUS --------
+
+// Sent from CLIENT
+message ChangeStatusRequest {
+  required string status = 1;
+}
+
+// Received from SERVER
+message ChangeStatusResponse {
+  required int32 userId = 1;
+  required string status = 2;
+}
+// ----------------------------------
+
+
+// ------------- BROADCAST -------------
+
+// Sent from CLIENT 
+message BroadcastRequest {
+  required string message = 1;
+}
+
+// Received from SERVER
+message BroadcastResponse {
+  required string messageStatus = 1;
+}
+
+// Received from SERVER to all CLIENTS
+message BroadcastMessage {
+  required string message = 1;
+  required int32 userId = 2;
+  optional string username = 3;
+}
+// --------------------------------------
+
+
+// --------- MENSAJE DIRECTO ---------
+
+// Sent from CLIENT
+message DirectMessageRequest {
+  required string message = 1;
+  optional int32 userId = 2;
+  optional string username = 3;
+}
+
+// Received from SERVER
+message DirectMessageResponse {
+  required string messageStatus = 1;
+}
+
+// Received from SERVER (Only recipient)
+message DirectMessage {
+  required string message = 1;
+  required int32 userId = 2;
+  optional string username = 3;
+}
+// -----------------------------------
+
+
+// ERROR GENERALIZADO
+message ErrorResponse {
+  required string errorMessage = 1;
+}
+
+
+// CLIENT MESSAGE OPTIONS
+// "option" helps the Server identify the type of message it is receiving and what to use to parse it
+// option 1: synchronize
+// option 2: connectedUsers
+// option 3: changeStatus
+// option 4: broadcast
+// option 5: directMessage
+// option 6: acknowledge
+message ClientMessage {
+  required int32 option = 1;
+
+  optional int32 userId = 2;
+
+  optional MyInfoSynchronize synchronize = 3;
+
+  optional connectedUserRequest connectedUsers = 4;
+
+  optional ChangeStatusRequest changeStatus = 5;
+
+  optional BroadcastRequest broadcast = 6;
+
+  optional DirectMessageRequest directMessage = 7;
+
+  optional MyInfoAcknowledge acknowledge = 8;
+}
+
+// SERVER MESSAGE OPTIONS
+// "option" helps the Client identify the type of message it is receiving and what to use to parse it
+// option 1: broadcast
+// option 2: message
+// option 3: error
+// option 4: myInfoResponse
+// option 5: connectedUserResponse
+// option 6: changeStatusResponse
+// option 7: broadcastResponse (sent message status)
+// option 8: directMessageResponse (sent message status)
+message ServerMessage {
+  required int32 option = 1;
+
+  optional BroadcastMessage broadcast = 2;
+
+  optional DirectMessage message = 3;
+
+  optional ErrorResponse error = 4;
+  
+  optional MyInfoResponse myInfoResponse = 5;
+  
+  optional ConnectedUserResponse connectedUserResponse = 6;
+  
+  optional ChangeStatusResponse changeStatusResponse = 7;
+  
+  optional BroadcastResponse broadcastResponse = 8;
+  
+  optional DirectMessageResponse directMessageResponse = 9;
+}
