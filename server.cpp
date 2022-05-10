@@ -140,8 +140,8 @@ void *ThreadWork(void *params)
             }
 
             // *********** TCP 3 Way Handshake Inicio ***********
-            chat::MyInfoSynchronize myInfoSync = clientMessage.synchronize();
-            std::cout << "Servidor: se recibió MyInfoSynchronize de: "
+            chat::UserRegistration myInfoSync = clientMessage.synchronize();
+            std::cout << "Servidor: se recibió UserRegistration de: "
                       << myInfoSync.username()
                       << std::endl;
 
@@ -274,7 +274,7 @@ void *ThreadWork(void *params)
                 continue;
             }
 
-            chat::ChangeStatusRequest chngStatReq = clientMessage.changestatus();
+            chat::ChangeStatus chngStatReq = clientMessage.changestatus();
             std::cout << "Servidor: usuario (" << thisClient.username
                       << ") ha solicitado un nuevo estado: "
                       << chngStatReq.status()
@@ -385,7 +385,7 @@ void *ThreadWork(void *params)
             }
 
             // Obtener mensaje de request
-            chat::DirectMessageRequest dirMsg = clientMessage.directmessage();
+            chat::Message dirMsg = clientMessage.directmessage();
             std::cout << "Servidor: usuario (" << thisClient.username
                       << ") envía mensaje privado a " << dirMsg.username()
                       << ". El mensaje es: \n    " << dirMsg.message()

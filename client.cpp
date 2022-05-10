@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 	char buffer[8192];
 	std::string message_serialized;
 
-	chat::MyInfoSynchronize *syncMessage = new chat::MyInfoSynchronize;
+	chat::UserRegistration *syncMessage = new chat::UserRegistration;
 	syncMessage->set_username(argv[1]);
 	syncMessage->set_ip("");
 
@@ -363,7 +363,7 @@ int main(int argc, char *argv[])
 
 			/* ENVIAR SOLICITUD A SERVIDOR */
 			chat::ClientMessage clientMsg;
-			chat::DirectMessageRequest *dmReq = new chat::DirectMessageRequest();
+			chat::Message *dmReq = new chat::Message();
 
 			// Se envia opcion 5: DirectMessageRequest
 			clientMsg.set_option(5);
@@ -402,9 +402,9 @@ int main(int argc, char *argv[])
 
 			/* ENVIAR SOLICITUD A SERVIDOR */
 			chat::ClientMessage clientMsg;
-			chat::ChangeStatusRequest *statReq = new chat::ChangeStatusRequest();
+			chat::ChangeStatus *statReq = new chat::ChangeStatus();
 
-			// Se envia opcion 3: changeStatusRequest
+			// Se envia opcion 3: ChangeStatus
 			clientMsg.set_option(3);
 			statReq->set_status(newStatus);
 			clientMsg.set_allocated_changestatus(statReq);
