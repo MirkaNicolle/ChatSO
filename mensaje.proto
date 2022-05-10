@@ -1,172 +1,87 @@
 syntax = "proto2";
-  
+
 package chat;
-
-
-// ----- (REGISTRO DE USUARIOS) TCP 3-Way HandShake -----
-
-// MY INFO REQ. - SYNCHRONIZE
-// Sent from CLIENT
-message MyInfoSynchronize {
-  required string username = 1;
-  optional string ip = 2;
+// Registrar nuevo usuario
+// el nombre de usuario “all” debe ser rechazado, ya que está reservado por otras funcionalidades
+message UserRegistration {
+optional string username = 1;
+optional string ip = 2;
 }
-
-// MY INFO RESP. - SYN/ACK
-// Received from SERVER
-message MyInfoResponse {
-  required int32 userId = 1;
+// Cambiar estado de usuario
+message ChangeStatus {
+optional string username = 1;
+optional string status = 2;
 }
-
-// MY INFO ACK. - ACKNOWLEDGE
-// Sent from CLIENT
-message MyInfoAcknowledge {
-  required int32 userId = 1;
+// Mandar un mensaje
+// all = todos los usuarios
+// (username) = usuario específico
+message Message {
+optional string receiver = 1;
+optional string sender = 2;
+optional string text = 3;
 }
-// ------------------------------------------------------
-
-
-// --------- LISTADO DE USUARIOS CONECTADOS e OBETENCION DE INFORMACION DE USUARIO ---------
-
-// Sent from CLIENT
-// IF userId 0 RETURN ALL CONNECTED USERS
-message connectedUserRequest {
-  optional int32 userId = 1;
-  optional string username = 2;
+// Obtener informacion de usuario
+message UserInformation {
+optional string username = 1;
+optional string ip = 2;
+optional string status = 3;
 }
-
-// USUARIOS CONECTADOS
-message ConnectedUser {
-  required string username = 1;
-  optional string status = 2;
-  optional int32 userId = 3;
-  optional string ip = 4;
+// Solicitud de información de usuario/s
+// user (all) = todos los usuarios
+// user (username) = usuario en específico
+message UserRequest {
+optional string user = 1;
 }
-
-// Received from SERVER
-message ConnectedUserResponse {
- repeated ConnectedUser connectedUsers = 1;
+// Mostrar usuarios conectados
+message ConnectedUsers {
+repeated UserInformation users = 1;
 }
-// ----------------------------------------------------------------------------------------
-
-
-// -------- CAMBIO DE STATUS --------
-
-// Sent from CLIENT
-message ChangeStatusRequest {
-  required string status = 1;
+// Solicitud de cliente
+// option (0) = Registro de usuario
+// option (1) = Listado de usuarios conectados
+// option (2) = Información de usuario
+// option (3) = Cambio de estado
+// option (4) = mensaje
+message ClientRequest {
+enum Option
+{
+USER_LOGIN = 0;
+CONNECTED_USERS = 1;
+USER_INFORMATION = 2;
+STATUS_CHANGE = 3;
+SEND_MESSAGE = 4;
 }
-
-// Received from SERVER
-message ChangeStatusResponse {
-  required int32 userId = 1;
-  required string status = 2;
+optional Option option = 1;
+optional UserRegistration newuser = 2;
+optional UserRequest user = 3;
+optional ChangeStatus status = 4;
+optional Message messg = 5;
 }
-// ----------------------------------
-
-
-// ------------- BROADCAST -------------
-
-// Sent from CLIENT 
-message BroadcastRequest {
-  required string message = 1;
+// Respuesta del servidor
+// option (0) = Registro de usuario
+// option (1) = Listado de usuarios conectados
+// option (2) = Información de usuario
+// option (3) = Cambio de estado
+// option (4) = mensaje
+message ServerResponse {
+enum Option
+{
+USER_LOGIN = 0;
+CONNECTED_USERS = 1;
+USER_INFORMATION = 2;
+STATUS_CHANGE = 3;
+SEND_MESSAGE = 4;
 }
-
-// Received from SERVER
-message BroadcastResponse {
-  required string messageStatus = 1;
+optional Option option = 1;
+enum Code
+{
+FAILED_OPERATION = 0;
+SUCCESSFUL_OPERATION = 1;
 }
-
-// Received from SERVER to all CLIENTS
-message BroadcastMessage {
-  required string message = 1;
-  required int32 userId = 2;
-  optional string username = 3;
-}
-// --------------------------------------
-
-
-// --------- MENSAJE DIRECTO ---------
-
-// Sent from CLIENT
-message DirectMessageRequest {
-  required string message = 1;
-  optional int32 userId = 2;
-  optional string username = 3;
-}
-
-// Received from SERVER
-message DirectMessageResponse {
-  required string messageStatus = 1;
-}
-
-// Received from SERVER (Only recipient)
-message DirectMessage {
-  required string message = 1;
-  required int32 userId = 2;
-  optional string username = 3;
-}
-// -----------------------------------
-
-
-// ERROR GENERALIZADO
-message ErrorResponse {
-  required string errorMessage = 1;
-}
-
-
-// CLIENT MESSAGE OPTIONS
-// "option" helps the Server identify the type of message it is receiving and what to use to parse it
-// option 1: synchronize
-// option 2: connectedUsers
-// option 3: changeStatus
-// option 4: broadcast
-// option 5: directMessage
-// option 6: acknowledge
-message ClientMessage {
-  required int32 option = 1;
-
-  optional int32 userId = 2;
-
-  optional MyInfoSynchronize synchronize = 3;
-
-  optional connectedUserRequest connectedUsers = 4;
-
-  optional ChangeStatusRequest changeStatus = 5;
-
-  optional BroadcastRequest broadcast = 6;
-
-  optional DirectMessageRequest directMessage = 7;
-
-  optional MyInfoAcknowledge acknowledge = 8;
-}
-
-// SERVER MESSAGE OPTIONS
-// "option" helps the Client identify the type of message it is receiving and what to use to parse it
-// option 1: broadcast
-// option 2: message
-// option 3: error
-// option 4: myInfoResponse
-// option 5: connectedUserResponse
-// option 6: changeStatusResponse
-// option 7: broadcastResponse (sent message status)
-// option 8: directMessageResponse (sent message status)
-message ServerMessage {
-  required int32 option = 1;
-
-  optional BroadcastMessage broadcast = 2;
-
-  optional DirectMessage message = 3;
-
-  optional ErrorResponse error = 4;
-  
-  optional MyInfoResponse myInfoResponse = 5;
-  
-  optional ConnectedUserResponse connectedUserResponse = 6;
-  
-  optional ChangeStatusResponse changeStatusResponse = 7;
-  
-  optional BroadcastResponse broadcastResponse = 8;
-  
-  optional DirectMessageResponse directMessageResponse = 9;
+optional Code code = 2;
+optional string response = 3;
+optional ConnectedUsers users = 4;
+optional UserInformation user = 5;
+optional Message messg = 6;
+optional ChangeStatus status = 7;
 }
